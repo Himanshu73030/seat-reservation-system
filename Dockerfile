@@ -7,6 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /service
 COPY pyproject.toml README.md ./
 COPY app ./app
+COPY frontend ./frontend
 COPY tests ./tests
 COPY scripts ./scripts
 RUN apt-get update \

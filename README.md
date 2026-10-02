@@ -12,7 +12,7 @@ docker compose up --build -d
 curl http://localhost:8000/readyz
 ```
 
-The app applies the idempotent schema at startup. Compose starts PostgreSQL 16, the API, Prometheus, and Grafana. Local endpoints are `http://localhost:8000`, `http://localhost:9090`, and `http://localhost:3000`. Grafana's default local login is `admin` / `local-grafana-change-me`; change all example secrets before exposing the stack.
+The app applies the idempotent schema at startup. Compose starts PostgreSQL 16, the API, seat-map frontend, Prometheus, and Grafana. Open `http://localhost:4173` for the seat map; API, Prometheus, and Grafana are at `http://localhost:8000`, `http://localhost:9090`, and `http://localhost:3000`. The frontend service proxies requests to the API over the internal Compose network. Grafana's default local login is `admin` / `local-grafana-change-me`; change all example secrets before exposing the stack.
 
 ## API
 
