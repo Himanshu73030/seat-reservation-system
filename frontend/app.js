@@ -4,6 +4,13 @@ const RESERVATIONS_KEY = "seat-map.reservations";
 
 const elements = {
   showForm: document.querySelector("#show-form"),
+  createForm: document.querySelector("#create-show-form"),
+  createName: document.querySelector("#create-name"),
+  createPrice: document.querySelector("#create-price"),
+  createSeats: document.querySelector("#create-seats"),
+  adminToken: document.querySelector("#admin-token"),
+  createSubmit: document.querySelector("#create-submit"),
+  createMessage: document.querySelector("#create-message"),
   showId: document.querySelector("#show-id"),
   showName: document.querySelector("#show-name"),
   showMeta: document.querySelector("#show-meta"),
@@ -52,6 +59,11 @@ function readPending(showId) {
 function setMessage(message, kind = "") {
   elements.actionMessage.textContent = message;
   elements.actionMessage.dataset.kind = kind;
+}
+
+function setCreateMessage(message, kind = "") {
+  elements.createMessage.textContent = message;
+  elements.createMessage.dataset.kind = kind;
 }
 
 function notify(message) {
@@ -192,6 +204,69 @@ async function apiRequest(path, options = {}) {
   return { response, data };
 }
 
+function parseSeatList(value) {
+  const seats = value.split(/[\s,]+/).filter(Boolean);
+  if (seats.length === 0) throw new Error("Enter at least one seat ID.");
+  if (seats.length > 100000) throw new Error("A show can have at most 100,000 seats.");
+  if (seats.some((seatId) => seatId.length > 32)) throw new Error("Seat IDs must be 32 characters or fewer.");
+  if (new Set(seats).size !== seats.length) throw new Error("Seat IDs must be unique.");
+  return seats;
+}
+
+async function createShow(event) {
+  event.preventDefault();
+  const name = elements.createName.value.trim();
+  const pricePaiseText = elements.createPrice.value;
+  const adminToken = elements.adminToken.value.trim();
+  if (!name || name.length > 200) {
+    setCreateMessage("Show name must contain 1 to 200 characters.", "error");
+    return;
+  }
+  if (!/^(0|[1-9]\d*)$/.test(pricePaiseText) || Number(pricePaiseText) > 9000000000000000) {
+    setCreateMessage("Enter a whole-number price in paise.", "error");
+    return;
+  }
+  let seats;
+  try {
+    seats = parseSeatList(elements.createSeats.value);
+  } catch (error) {
+    setCreateMessage(error.message, "error");
+    return;
+  }
+  if (!adminToken) {
+    setCreateMessage("Enter the configured admin token.", "error");
+    return;
+  }
+
+  elements.createSubmit.disabled = true;
+  setCreateMessage("Creating show…", "pending");
+  try {
+    const { response, data } = await apiRequest("/shows", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ name, seats, price_paise: Number(pricePaiseText) }),
+    });
+    if (!response.ok) {
+      const detail = Array.isArray(data?.detail)
+        ? data.detail.map((issue) => issue.msg).join("; ")
+        : data?.detail || `Request failed (${response.status})`;
+      throw new Error(detail);
+    }
+    elements.showId.value = data.id;
+    selectedSeats.clear();
+    currentShow = null;
+    elements.createForm.reset();
+    elements.createForm.closest("details").open = false;
+    setCreateMessage(`Created ${data.name} · ${data.id}`, "success");
+    notify("Show created");
+    await refreshShow();
+  } catch (error) {
+    setCreateMessage(error.message, "error");
+  } finally {
+    elements.createSubmit.disabled = false;
+  }
+}
+
 async function refreshShow() {
   const showId = elements.showId.value.trim();
   if (!showId || refreshInProgress) return;
@@ -316,6 +391,7 @@ elements.showForm.addEventListener("submit", (event) => {
   setMessage("");
   refreshShow();
 });
+elements.createForm.addEventListener("submit", createShow);
 elements.reserve.addEventListener("click", reserveSelected);
 elements.userToken.addEventListener("input", () => {
   if (currentShow) renderShow(currentShow);

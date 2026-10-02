@@ -36,6 +36,34 @@
         </form>
       </section>
 
+      <details class="create-show-panel">
+        <summary><span class="create-icon" aria-hidden="true">+</span> Create a show</summary>
+        <form id="create-show-form" class="create-show-form">
+          <div class="create-show-fields">
+            <label>
+              <span>Show name</span>
+              <input id="create-name" name="name" maxlength="200" placeholder="friday-night" required>
+            </label>
+            <label>
+              <span>Ticket price · paise</span>
+              <input id="create-price" name="pricePaise" type="number" min="0" max="9000000000000000" step="1" placeholder="25000" required>
+            </label>
+            <label class="create-seats-field">
+              <span>Seat IDs</span>
+              <textarea id="create-seats" name="seats" rows="3" placeholder="A1, A2, A3, B1, B2" required></textarea>
+            </label>
+            <label>
+              <span>Admin token</span>
+              <input id="admin-token" name="adminToken" type="password" autocomplete="current-password" placeholder="Configured ADMIN_TOKEN" required>
+            </label>
+          </div>
+          <div class="create-show-footer">
+            <p id="create-message" class="create-message" role="status" aria-live="polite"></p>
+            <button id="create-submit" class="button button-dark" type="submit">Create show</button>
+          </div>
+        </form>
+      </details>
+
       <section class="status-strip" aria-label="Seat totals">
         <div class="status-total status-total-occupied">
           <span class="total-value" id="count-confirmed">--</span>

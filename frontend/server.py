@@ -28,15 +28,19 @@ class FrontendHandler(SimpleHTTPRequestHandler):
         self._proxy("POST")
 
     def _proxy(self, method):
-        match = re.fullmatch(
-            r"/api/shows/([^/]+)(?:/reserve)?|/api/reservations/([^/]+)/cancel",
-            self.path,
-        )
-        if not match:
-            self._send_json(404, {"detail": "frontend_proxy_route_not_found"})
-            return
-
-        show_id, reservation_id = match.groups()
+        if self.path == "/api/shows":
+            show_id, reservation_id = None, None
+            suffix = "/shows"
+        else:
+            match = re.fullmatch(
+                r"/api/shows/([^/]+)(?:/reserve)?|/api/reservations/([^/]+)/cancel",
+                self.path,
+            )
+            if not match:
+                self._send_json(404, {"detail": "frontend_proxy_route_not_found"})
+                return
+            show_id, reservation_id = match.groups()
+            suffix = self.path.removeprefix("/api")
         if show_id and not SHOW_ID.fullmatch(show_id):
             self._send_json(400, {"detail": "invalid_show_id"})
             return
@@ -44,11 +48,15 @@ class FrontendHandler(SimpleHTTPRequestHandler):
             self._send_json(400, {"detail": "invalid_reservation_id"})
             return
 
-        suffix = self.path.removeprefix("/api")
+        if suffix == "/shows" and method != "POST":
+            self._send_json(405, {"detail": "method_not_allowed"})
+            return
         if method == "GET" and suffix.endswith("/reserve"):
             self._send_json(405, {"detail": "method_not_allowed"})
             return
         if method == "POST" and (suffix.endswith("/reserve") or suffix.endswith("/cancel")):
+            pass
+        elif method == "POST" and suffix == "/shows":
             pass
         elif method == "GET" and re.fullmatch(r"/shows/[^/]+", suffix):
             pass
