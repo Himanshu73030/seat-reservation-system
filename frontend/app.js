@@ -28,6 +28,8 @@ const elements = {
   occupancyBar: document.querySelector("#occupancy-bar"),
   selectionCount: document.querySelector("#selection-count"),
   selectionLabel: document.querySelector("#selection-label"),
+  ticketPrice: document.querySelector("#ticket-price"),
+  selectionTotal: document.querySelector("#selection-total"),
   selectedList: document.querySelector("#selected-list"),
   userToken: document.querySelector("#user-token"),
   reserve: document.querySelector("#reserve-button"),
@@ -82,10 +84,18 @@ function compareSeatIds(left, right) {
   return left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
 }
 
+function formatPaise(amount) {
+  const rupees = amount / 100n;
+  const paise = (amount % 100n).toString().padStart(2, "0");
+  return `₹${new Intl.NumberFormat("en-IN").format(rupees)}.${paise}`;
+}
+
 function updateSelection() {
   const selected = [...selectedSeats].sort(compareSeatIds);
   elements.selectionCount.textContent = String(selected.length);
   elements.selectionLabel.textContent = selected.length === 1 ? "seat selected" : "seats selected";
+  const pricePaise = currentShow ? BigInt(currentShow.price_paise) : 0n;
+  elements.selectionTotal.textContent = formatPaise(pricePaise * BigInt(selected.length));
   elements.selectedList.replaceChildren();
   if (selected.length === 0) {
     const hint = document.createElement("span");
@@ -105,6 +115,7 @@ function updateSelection() {
 
 function updateCounts(show) {
   const counts = show.counts;
+  elements.ticketPrice.textContent = formatPaise(BigInt(show.price_paise));
   elements.countConfirmed.textContent = String(counts.confirmed);
   elements.countHeld.textContent = String(counts.held);
   elements.countAvailable.textContent = String(counts.available);
