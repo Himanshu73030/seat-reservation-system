@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f2f5f1">
+    <title>Seat map | Event reservations</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Seat map home">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>Seat map</span>
+      </a>
+      <div class="connection-state" id="connection-state" data-state="idle">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="connection-label">Not connected</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="show-bar" aria-label="Show selection">
+        <div class="show-heading">
+          <p class="eyebrow">EVENT OPERATIONS</p>
+          <h1 id="show-name">Choose a show</h1>
+          <p class="show-meta" id="show-meta">Enter a show ID to view its seats.</p>
+        </div>
+        <form class="show-form" id="show-form">
+          <label for="show-id">Show ID</label>
+          <div class="input-action">
+            <input id="show-id" name="showId" autocomplete="off" spellcheck="false" placeholder="UUID" required>
+            <button class="button button-dark" type="submit">Load show</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="status-strip" aria-label="Seat totals">
+        <div class="status-total status-total-occupied">
+          <span class="total-value" id="count-confirmed">--</span>
+          <span class="total-label">Occupied</span>
+        </div>
+        <div class="status-total status-total-held">
+          <span class="total-value" id="count-held">--</span>
+          <span class="total-label">Held</span>
+        </div>
+        <div class="status-total status-total-available">
+          <span class="total-value" id="count-available">--</span>
+          <span class="total-label">Available</span>
+        </div>
+        <div class="status-total status-total-all">
+          <span class="total-value" id="count-total">--</span>
+          <span class="total-label">Total seats</span>
+        </div>
+        <div class="occupancy-wrap">
+          <div class="occupancy-copy">
+            <span>Occupancy</span>
+            <strong id="occupancy-value">--%</strong>
+          </div>
+          <div class="occupancy-track" role="progressbar" aria-label="Show occupancy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="occupancy-track">
+            <span id="occupancy-bar"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="workspace">
+        <section class="map-section" aria-labelledby="map-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">LIVE INVENTORY</p>
+              <h2 id="map-title">Seat map <span class="refresh-mark" aria-hidden="true">↻</span></h2>
+            </div>
+            <div class="legend" aria-label="Seat status legend">
+              <span><i class="legend-swatch swatch-available"></i>Available</span>
+              <span><i class="legend-swatch swatch-held"></i>Held</span>
+              <span><i class="legend-swatch swatch-confirmed"></i>Occupied</span>
+            </div>
+          </div>
+          <div class="screen-edge" aria-hidden="true"><span>STAGE / SCREEN</span></div>
+          <div class="seat-map" id="seat-map" aria-live="polite" aria-busy="false">
+            <div class="empty-state" id="empty-state">
+              <span class="empty-glyph" aria-hidden="true">···</span>
+              <p>Load a show to see its seats.</p>
+            </div>
+          </div>
+          <p class="updated-at" id="updated-at">Waiting for show data</p>
+        </section>
+
+        <aside class="action-panel" aria-labelledby="action-title">
+          <p class="eyebrow">RESERVATION</p>
+          <h2 id="action-title">Your seats</h2>
+          <div class="selection-summary">
+            <span class="selection-count" id="selection-count">0</span>
+            <span id="selection-label">seats selected</span>
+          </div>
+          <div class="selected-list" id="selected-list" aria-live="polite">
+            <span class="muted-copy">Select available seats on the map.</span>
+          </div>
+          <label class="token-label" for="user-token">Mock user ID</label>
+          <input id="user-token" class="token-input" autocomplete="username" placeholder="e.g. buyer-123">
+          <button class="button button-accent reserve-button" id="reserve-button" type="button" disabled>Reserve selected</button>
+          <p class="action-message" id="action-message" role="status" aria-live="polite"></p>
+          <div class="my-reservations" id="my-reservations" hidden>
+            <div class="reservations-heading">
+              <h3>Booked here</h3>
+              <span class="session-tag">THIS SESSION</span>
+            </div>
+            <div id="reservation-list"></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
