@@ -1,4 +1,7 @@
 FROM grafana/grafana:11.5.4
+ENV GF_AUTH_ANONYMOUS_ENABLED=true \
+    GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer \
+    GF_USERS_ALLOW_SIGN_UP=false
 COPY grafana/provisioning /etc/grafana/provisioning
 COPY grafana/dashboards /var/lib/grafana/dashboards
 ENTRYPOINT ["/bin/sh", "-c"]
