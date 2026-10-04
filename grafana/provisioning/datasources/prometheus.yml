@@ -5,6 +5,6 @@ datasources:
     uid: prometheus
     type: prometheus
     access: proxy
-    url: http://prometheus:9090
+    url: https://seat-reservation-prometheus.onrender.com
     isDefault: true
     editable: false
