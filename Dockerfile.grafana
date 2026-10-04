@@ -1,0 +1,5 @@
+FROM grafana/grafana:11.5.4
+COPY grafana/provisioning /etc/grafana/provisioning
+COPY grafana/dashboards /var/lib/grafana/dashboards
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["export GF_SERVER_HTTP_ADDR=0.0.0.0; export GF_SERVER_HTTP_PORT=${PORT:-10000}; exec /run.sh"]
